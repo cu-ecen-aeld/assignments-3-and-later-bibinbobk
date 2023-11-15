@@ -23,5 +23,4 @@ fi
 output_X=$(grep -Rwcls "$1" -e "$2" | wc -l)
 output_Y=$(grep -Rwos "$1" -e "$2" | wc -l)
 
-
 echo "The number of files are $output_X and the number of matching lines are $output_Y"
