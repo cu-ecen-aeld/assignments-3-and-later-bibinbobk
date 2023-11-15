@@ -1,6 +1,7 @@
 #!/bin/sh
 # A finder app
 # Created by: bibinbobk
+# Date: 15-Nov-2023
 
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 error" >&2
