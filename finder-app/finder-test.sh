@@ -34,7 +34,7 @@ rm -rf "${WRITEDIR}"
 # create $WRITEDIR if not assignment1
 assignment=`cat ../conf/assignment.txt`
 
-if [ $assignment = 'assignment1' ] --changed according to discussion https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/discussions/weeks/1/threads/nznuPzXEEe6qcgp0u5G9Fw
+if [ $assignment = 'assignment1' ] ##changed according to discussion https://www.coursera.org/learn/linux-system-programming-introduction-to-buildroot/discussions/weeks/1/threads/nznuPzXEEe6qcgp0u5G9Fw
 then
 	mkdir -p "$WRITEDIR"
 
