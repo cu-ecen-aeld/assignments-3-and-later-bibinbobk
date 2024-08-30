@@ -1,4 +1,12 @@
 #include "systemcalls.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /**
  * @param cmd the command to execute with system()
@@ -16,6 +24,10 @@ bool do_system(const char *cmd)
  *   and return a boolean true if the system() call completed with success
  *   or false() if it returned a failure
 */
+    int result = system(cmd); 
+    if (result == -1) {
+        return false;
+    }
 
     return true;
 }
@@ -44,6 +56,12 @@ bool do_exec(int count, ...)
     {
         command[i] = va_arg(args, char *);
     }
+    //debug // printf("\n--------------------------\n");
+    //debug // for(i=0; i<count; i++)
+    //debug // {
+    //debug //     printf("command[%d]: %s\n",i,command[i]);
+    //debug // }
+    //debug // printf("\n--------------------------\n");
     command[count] = NULL;
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
@@ -58,6 +76,30 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
+    int status;
+    pid_t pid;
+    fflush(stdout);
+    pid = fork ( );
+    //debug // printf("pid: %d \n",pid);
+    fflush(stdout);
+    if (pid == -1)
+        return false;
+    else if (pid == 0) {
+        execv(command[0], command);
+        //debug // perror("execv failed");
+        exit(EXIT_FAILURE);
+        return false;
+    } else if (pid > 1) {
+        wait(&status);
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            return true;  // Child exited normally with status 0 (success)
+        } else {
+            return false;  // Child exited with non-zero status (failure)
+        }
+    } else {
+        //debug // perror("fork failed");
+        return false;
+    }
 
     va_end(args);
 
@@ -92,6 +134,53 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
+    //debug // printf("\n--------------------------\n");
+    //debug // for(i=0; i<count; i++)
+    //debug // {
+    //debug //     printf("command[%d]: %s\n",i,command[i]);
+    //debug // }
+    //debug // printf("\n--------------------------\n");
+    //debug // printf("outputfile : %s\n",outputfile);
+    
+    int status;
+    pid_t pid;
+
+
+    fflush(stdout);
+    pid = fork ( );
+    //debug // printf("pid: %d \n",pid);
+    fflush(stdout);
+    if (pid == -1) {
+        return false;
+    } else if (pid == 0) {
+        int fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
+        printf("fd: %d\n",fd);
+        if (fd < 0) { 
+            //debug // printf("outputfile error\n");
+            //debug // perror("open"); 
+            return false; 
+        }
+        if (dup2(fd, 1) < 0) {
+            //debug // printf("dup2 error\n");
+            //debug // perror("open"); 
+            return false; 
+        }
+        close(fd);
+        execv(command[0], command);
+        //debug // perror("execv failed");
+        exit(EXIT_FAILURE);
+        return false;
+    } else if (pid > 1) {
+        wait(&status);
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+            return true;  // Child exited normally with status 0 (success)
+        } else {
+            return false;  // Child exited with non-zero status (failure)
+        }
+    } else {
+        //debug // perror("fork failed");
+        return false;
+    }
 
     va_end(args);
 
